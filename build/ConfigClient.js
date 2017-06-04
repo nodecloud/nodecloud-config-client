@@ -1,9 +1,22 @@
-import Refresher from './Refresher';
-import ServerWatcher from './ServerWatcher';
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Refresher = require('./Refresher');
+
+var _Refresher2 = _interopRequireDefault(_Refresher);
+
+var _ServerWatcher = require('./ServerWatcher');
+
+var _ServerWatcher2 = _interopRequireDefault(_ServerWatcher);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const URL = '/:service/:env';
 
-export default class ConfigClient {
+class ConfigClient {
     /**
      *
      * @param options
@@ -19,8 +32,8 @@ export default class ConfigClient {
         }
         this.service = options.service;
         this.env = options.env;
-        this.refresher = new Refresher();
-        this.watcher = new ServerWatcher({
+        this.refresher = new _Refresher2.default();
+        this.watcher = new _ServerWatcher2.default({
             url: this.buildUrl(options.host, options.port),
             service: options.service,
             env: options.env
@@ -44,7 +57,7 @@ export default class ConfigClient {
                 const finalConfiguration = this.getFinalConfigurationSource(configuration);
                 this.compareAndSet(finalConfiguration);
             }
-        })
+        });
     }
 
     getFinalConfigurationSource(configuration) {
@@ -53,7 +66,9 @@ export default class ConfigClient {
             this.lastConfiguration = {};
         }
 
-        let globalSource = null, envSource = null, source = null;
+        let globalSource = null,
+            envSource = null,
+            source = null;
         const finalSource = {};
 
         sources.forEach(item => {
@@ -66,9 +81,7 @@ export default class ConfigClient {
             }
         });
 
-        [globalSource, source, envSource]
-            .filter(source => source)
-            .forEach(source => Object.assign(finalSource, source));
+        [globalSource, source, envSource].filter(source => source).forEach(source => Object.assign(finalSource, source));
         configuration.finalSource = finalSource;
 
         return configuration;
@@ -106,4 +119,4 @@ export default class ConfigClient {
         return fullUrl + URL;
     }
 }
-
+exports.default = ConfigClient;

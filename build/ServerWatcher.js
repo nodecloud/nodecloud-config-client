@@ -1,7 +1,22 @@
-import scheduler from 'node-schedule';
-import * as http from './HttpClient';
+'use strict';
 
-export default class ServerWatcher {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _nodeSchedule = require('node-schedule');
+
+var _nodeSchedule2 = _interopRequireDefault(_nodeSchedule);
+
+var _HttpClient = require('./HttpClient');
+
+var http = _interopRequireWildcard(_HttpClient);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ServerWatcher {
     /**
      *
      * @param options
@@ -48,3 +63,4 @@ export default class ServerWatcher {
         this.end = true;
     }
 }
+exports.default = ServerWatcher;

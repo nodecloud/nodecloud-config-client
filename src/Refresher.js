@@ -7,6 +7,24 @@ export default class Refresher extends Event {
         super();
     }
 
+    onRefreshAll(callback) {
+        if (typeof callback === 'function') {
+            this.on(REFRESH_ALL_EVENT, callback);
+        }
+    }
+
+    onRefresh(key, callback) {
+        if (typeof callback === 'function') {
+            this.on(key, callback);
+        }
+    }
+
+    onError(callback) {
+        if (typeof callback === 'function') {
+            this.on(ERROR_EVENT, callback);
+        }
+    }
+
     refreshAll(source) {
         this.emit(REFRESH_ALL_EVENT, source);
     }
