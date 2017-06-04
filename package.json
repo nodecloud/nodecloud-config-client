@@ -1,0 +1,42 @@
+{
+  "name": "node-cloud-config-client",
+  "version": "0.0.1",
+  "description": "A component of node cloud framework.",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d build",
+    "test": "NODE_ENV=development nyc ava ./test"
+  },
+  "keywords": [
+    "node-cloud",
+    "node-cloud-config",
+    "config-client"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-cloud/node-cloud-config-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/node-cloud/node-cloud-config-client/issues"
+  },
+  "homepage": "https://github.com/node-cloud/node-cloud-config-client#readme",
+  "author": "miaowing <i@zfeng.net>",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.4.0",
+    "consul": "^0.28.0",
+    "nyc": "^10.2.0"
+  },
+  "optionalDependencies": {
+    "node-cloud-loadbalance": "0.0.1"
+  },
+  "dependencies": {
+    "node-schedule": "^1.2.3",
+    "lodash": "^4.17.4",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1",
+    "uri-params": "^0.1.3"
+  }
+}
