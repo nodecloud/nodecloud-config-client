@@ -1,6 +1,6 @@
-# node-cloud-config-client
+# NodeCloud-Config-Client
 
-This is a client for spring-cloud-config-server written by node.
+This is a client for springcloud-config-server written by node.
 
 ## Usage
 ```
@@ -53,8 +53,12 @@ client.on(ERROR_EVENT, err => {
 
 ### client.on(eventName, callback)
 
-### client.getConfig()
+* CONFIG_REFRESH_EVENT
+* ERROR_EVENT
+* Your configuration path
 
-### client.getConfig(path, defaultValue)
+### await client.getConfig()
+
+### await client.getConfig(path, defaultValue)
 
 ### client.destroy()
