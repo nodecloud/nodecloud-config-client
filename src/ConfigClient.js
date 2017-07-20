@@ -1,109 +1,103 @@
-import Refresher from './Refresher';
-import ServerWatcher from './ServerWatcher';
+import Event from 'events';
+import RemoteClient from './RemoteClient';
+import LocalClient from './LocalClient';
 
-const URL = '/:service/:env';
+export const ERROR_EVENT = 'error_event';
+export const CONFIG_REFRESH_EVENT = 'config_refresh_event';
 
-export default class ConfigClient {
+export default class ConfigClient extends Event {
     /**
      *
      * @param options
-     * @param options.host
-     * @param options.port
-     * @param options.service
-     * @param options.env
-     * @param options.interval
+     * @param options.remote.host
+     * @param options.remote.port
+     * @param options.remote.service
+     * @param options.remote.interval
+     * @param options.local.path
+     * @param options.local.service
+     * @param options.local.ext
      */
     constructor(options) {
-        if (!options.host || !options.service || !options.env) {
-            throw new Error('Please check your options, maybe the host, port, service or port is empty.');
-        }
-        this.service = options.service;
-        this.env = options.env;
-        this.refresher = new Refresher();
-        this.watcher = new ServerWatcher({
-            url: this.buildUrl(options.host, options.port),
-            service: options.service,
-            env: options.env
-        }, options.interval);
+        super();
 
-        this.lastVersion = '';
-        this.lastConfiguration = null;
-
-        this.handleConfiguration();
-        this.watcher.startWatch();
-    }
-
-    handleConfiguration() {
-        this.watcher.onUpdate((err, configuration) => {
-            if (err) {
-                return this.refresher.error(err);
-            }
-
-            if (this.lastVersion !== configuration.version) {
-                this.lastVersion = configuration.version;
-                const finalConfiguration = this.getFinalConfigurationSource(configuration);
-                this.compareAndSet(finalConfiguration);
-            }
-        })
-    }
-
-    getFinalConfigurationSource(configuration) {
-        const sources = configuration.propertySources;
-        if (sources.length > 0 && !this.lastConfiguration) {
-            this.lastConfiguration = {};
+        if (!options.remote && !options.local) {
+            throw new Error('No configuration was found, please check your options.');
         }
 
-        let globalSource = null, envSource = null, source = null;
-        const finalSource = {};
+        this.remote = {};
+        this.local = {};
+        this.configType = 'remote';
 
-        sources.forEach(item => {
-            if (item.name && ~item.name.indexOf("application.yml")) {
-                globalSource = item.source;
-            } else if (item.name && ~item.name.indexOf(this.service + '-' + this.env + '.yml')) {
-                envSource = item.source;
-            } else if (item.name && ~item.name.indexOf(this.service + '.yml')) {
-                source = item.source;
-            }
-        });
-
-        [globalSource, source, envSource]
-            .filter(source => source)
-            .forEach(source => Object.assign(finalSource, source));
-        configuration.finalSource = finalSource;
-
-        return configuration;
-    }
-
-    compareAndSet(configuration) {
-        if (!configuration.finalSource) {
-            return;
+        if (!options.remote) {
+            this.configType = 'local';
         }
 
-        for (const key in configuration.finalSource) {
-            if (!configuration.finalSource.hasOwnProperty(key)) {
-                continue;
-            }
+        if (options.remote) {
+            this.remote = initialRemoteConfig(options.remote);
+        }
 
-            if (this.lastConfiguration[key] !== configuration.finalSource[key]) {
-                this.lastConfiguration[key] = configuration.finalSource[key];
+        if (options.local) {
+            this.local = initialLocalConfig(options.local);
+        }
 
-                this.refresher.refresh(key, this.lastConfiguration[key]);
+        this.remoteClient = new RemoteClient(this.remote);
+        this.remoteClient.onRefresh((key, config) => this.emit(key, config));
+        this.remoteClient.onRefreshAll(config => this.emit(CONFIG_REFRESH_EVENT, config));
+        this.remoteClient.onError(err => this.emit(ERROR_EVENT, err));
+        this.localClient = new LocalClient(this.local);
+    }
+
+    async getConfig(path, defaultValue) {
+        if (this.configType === 'remote') {
+            try {
+                return {
+                    type: this.configType,
+                    config: await this.remoteClient.getConfig(path, defaultValue)
+                }
+            } catch (e) {
+                this.emit(ERROR_EVENT, e);
+                this.configType = 'local';
             }
         }
 
-        if (this.lastConfiguration) {
-            this.refresher.refreshAll(this.lastConfiguration);
+        return {
+            type: this.configType,
+            config: this.localClient.getConfig(path, defaultValue)
         }
     }
 
-    buildUrl(host, port) {
-        let fullUrl = 'http://' + host;
-
-        if (port !== 80) {
-            fullUrl += ':' + port;
-        }
-
-        return fullUrl + URL;
+    destroy() {
+        this.remoteClient.end();
     }
+}
+
+function initialRemoteConfig(remote) {
+    if (!remote.host) {
+        throw new Error('The host param is required.');
+    }
+
+    if (!remote.service) {
+        throw new Error('The service param is required.');
+    }
+
+    if (!remote.interval) {
+        remote.interval = 60000;
+    }
+
+    remote.env = process.env.NODE_ENV;
+    return remote;
+}
+
+function initialLocalConfig(local) {
+    if (!local.path) {
+        throw new Error('The path param is required.');
+    }
+
+    if (!local.type) {
+        local.type = 'js';
+    }
+
+    local.env = process.env.NODE_ENV;
+    return local;
 }
 

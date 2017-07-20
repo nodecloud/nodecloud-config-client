@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.send = send;
+exports.getRemoteConfig = getRemoteConfig;
 
 var _lodash = require("lodash");
 
@@ -18,6 +19,8 @@ var _uriParams = require("uri-params");
 var _uriParams2 = _interopRequireDefault(_uriParams);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const URL = '/:service/:env';
 
 /**
  * Send http request.
@@ -41,4 +44,23 @@ function send(options = {}) {
     }
 
     return (0, _requestPromise2.default)(options);
+}
+
+function getRemoteConfig(host, port, service, env) {
+    const request = {
+        url: buildUrl(host, port),
+        params: { service: service, env: env }
+    };
+
+    return send(request);
+}
+
+function buildUrl(host, port) {
+    let fullUrl = 'http://' + host;
+
+    if (port !== 80) {
+        fullUrl += ':' + port;
+    }
+
+    return fullUrl + URL;
 }

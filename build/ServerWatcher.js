@@ -4,41 +4,23 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _nodeSchedule = require('node-schedule');
-
-var _nodeSchedule2 = _interopRequireDefault(_nodeSchedule);
-
 var _HttpClient = require('./HttpClient');
 
 var http = _interopRequireWildcard(_HttpClient);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 class ServerWatcher {
-    /**
-     *
-     * @param options
-     * @param options.url
-     * @param options.service
-     * @param options.env
-     * @param millisecond
-     */
-    constructor(options, millisecond) {
-        this.init(options);
-        this.millisecond = millisecond || 60000;
-        this.end = false;
-    }
 
-    init(options) {
-        this.options = {
-            url: options.url,
-            params: {
-                service: options.service,
-                env: options.env
-            }
-        };
+    constructor(host, port, service, env, interval) {
+        this.host = host;
+        this.port = port;
+        this.env = env;
+        this.service = service;
+        this.interval = interval || 60000;
+        this.end = false;
     }
 
     onUpdate(callback) {
@@ -46,17 +28,22 @@ class ServerWatcher {
     }
 
     startWatch() {
-        setTimeout(() => {
-            http.send(this.options).then(configuration => {
-                if (this.callback) this.callback(false, configuration);
-            }).catch(err => {
-                if (this.callback) this.callback(err, null);
-            });
+        var _this = this;
 
-            if (!this.end) {
-                this.startWatch();
+        setTimeout(_asyncToGenerator(function* () {
+            try {
+                const configuration = yield http.getRemoteConfig(_this.host, _this.port, _this.service, _this.env);
+                _this.callback && _this.callback(false, configuration);
+            } catch (e) {
+                _this.callback && _this.callback(e, null);
             }
-        }, this.millisecond);
+
+            if (!_this.end) {
+                try {
+                    _this.startWatch();
+                } catch (ignore) {}
+            }
+        }), this.interval);
     }
 
     endWatch() {

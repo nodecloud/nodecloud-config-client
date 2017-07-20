@@ -1,29 +1,14 @@
-import scheduler from 'node-schedule';
 import * as http from './HttpClient';
 
 export default class ServerWatcher {
-    /**
-     *
-     * @param options
-     * @param options.url
-     * @param options.service
-     * @param options.env
-     * @param millisecond
-     */
-    constructor(options, millisecond) {
-        this.init(options);
-        this.millisecond = millisecond || 60000;
-        this.end = false;
-    }
 
-    init(options) {
-        this.options = {
-            url: options.url,
-            params: {
-                service: options.service,
-                env: options.env
-            }
-        };
+    constructor(host, port, service, env, interval) {
+        this.host = host;
+        this.port = port;
+        this.env = env;
+        this.service = service;
+        this.interval = interval || 60000;
+        this.end = false;
     }
 
     onUpdate(callback) {
@@ -31,17 +16,21 @@ export default class ServerWatcher {
     }
 
     startWatch() {
-        setTimeout(() => {
-            http.send(this.options).then(configuration => {
-                if (this.callback) this.callback(false, configuration);
-            }).catch(err => {
-                if (this.callback) this.callback(err, null);
-            });
+        setTimeout(async () => {
+            try {
+                const configuration = await http.getRemoteConfig(this.host, this.port, this.service, this.env);
+                this.callback && this.callback(false, configuration);
+            } catch (e) {
+                this.callback && this.callback(e, null);
+            }
 
             if (!this.end) {
-                this.startWatch();
+                try {
+                    this.startWatch();
+                } catch (ignore) {
+                }
             }
-        }, this.millisecond);
+        }, this.interval);
     }
 
     endWatch() {
