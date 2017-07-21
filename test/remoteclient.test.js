@@ -4,26 +4,28 @@ import RemoteClient from '../src/RemoteClient';
 
 test('Test remote client get config in development.', async t => {
     const remoteClient = new RemoteClient({
-        host: 'localhost',
-        port: 8888,
-        service: 'i5sing-service',
+        host: '192.168.0.30',
+        port: 3007,
+        url: '/multi-cloud-config-service/v1/config/:service/:env/inner',
+        service: 'test-service',
         env: 'development',
         interval: 5000
     });
 
     const config = await remoteClient.getConfig();
-    t.is(config.spring.cloud.consul.host, 'consul.miaow.io');
+    t.is(config.name, 'test');
 });
 
 test('Test remote client get config by key in development.', async t => {
     const remoteClient = new RemoteClient({
-        host: 'localhost',
-        port: 8888,
-        service: 'i5sing-service',
+        host: '192.168.0.30',
+        port: 3007,
+        url: '/multi-cloud-config-service/v1/config/:service/:env/inner',
+        service: 'test-service',
         env: 'development',
         interval: 5000
     });
 
-    const config = await remoteClient.getConfig('spring.cloud.consul.host');
-    t.is(config, 'consul.miaow.io');
+    const config = await remoteClient.getConfig('name');
+    t.is(config, 'test');
 });

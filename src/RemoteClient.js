@@ -8,10 +8,11 @@ export default class RemoteConfig {
         this.port = options.port;
         this.env = options.env;
         this.service = options.service;
+        this.url = options.url;
         this.lastVersion = '';
         this.lastConfiguration = null;
 
-        this.watcher = new ServerWatcher(this.host, this.port, this.service, this.env, options.interval);
+        this.watcher = new ServerWatcher(this.host, this.port, this.service, this.env, options.interval, this.url);
         this.watcher.onUpdate((err, configuration) => {
             if (err) {
                 this.errorCallback && this.errorCallback(err);
@@ -43,7 +44,7 @@ export default class RemoteConfig {
 
     async loadConfig() {
         try {
-            const configuration = await httpClient.getRemoteConfig(this.host, this.port, this.service, this.env);
+            const configuration = await httpClient.getRemoteConfig(this.host, this.port, this.service, this.env, this.url);
             this.handleConfiguration(configuration);
             this.watcher.startWatch();
         } catch (e) {
@@ -91,11 +92,11 @@ export default class RemoteConfig {
         const finalSource = {};
 
         sources.forEach(item => {
-            if (item.name && ~item.name.indexOf("application.yml")) {
+            if (item.name && ~item.name.indexOf("application")) {
                 globalSource = item.source;
-            } else if (item.name && ~item.name.indexOf(this.service + '-' + this.env + '.yml')) {
+            } else if (item.name && ~item.name.indexOf(this.service + '-' + this.env)) {
                 envSource = item.source;
-            } else if (item.name && ~item.name.indexOf(this.service + '.yml')) {
+            } else if (item.name && ~item.name.indexOf(this.service)) {
                 source = item.source;
             }
         });
