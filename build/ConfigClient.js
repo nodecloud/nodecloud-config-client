@@ -28,11 +28,10 @@ class ConfigClient extends _events2.default {
     /**
      *
      * @param options
-     * @param options.remote.host
-     * @param options.remote.port
      * @param options.remote.service
      * @param options.remote.interval
      * @param options.remote.url
+     * @param options.remote.client
      * @param options.local.path
      * @param options.local.service
      * @param options.local.ext
@@ -97,10 +96,6 @@ class ConfigClient extends _events2.default {
 
 exports.default = ConfigClient;
 function initialRemoteConfig(remote) {
-    if (!remote.host) {
-        throw new Error('The host param is required.');
-    }
-
     if (!remote.service) {
         throw new Error('The service param is required.');
     }

@@ -1,6 +1,6 @@
 {
   "name": "nodecloud-config-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A component of node cloud framework.",
   "main": "build/ConfigClient.js",
   "scripts": {
@@ -34,9 +34,6 @@
     "babel-preset-env": "^1.4.0",
     "consul": "^0.28.0",
     "nyc": "^10.2.0"
-  },
-  "optionalDependencies": {
-    "node-cloud-loadbalance": "0.0.1"
   },
   "dependencies": {
     "lodash": "^4.17.4",

@@ -2,13 +2,12 @@ import * as http from './HttpClient';
 
 export default class ServerWatcher {
 
-    constructor(host, port, service, env, interval, url) {
-        this.host = host;
-        this.port = port;
+    constructor(service, env, interval, url, client) {
         this.env = env;
         this.service = service;
         this.interval = interval || 60000;
         this.url = url;
+        this.client = client;
         this.end = false;
     }
 
@@ -19,7 +18,7 @@ export default class ServerWatcher {
     startWatch() {
         setTimeout(async () => {
             try {
-                const configuration = await http.getRemoteConfig(this.host, this.port, this.service, this.env, this.url);
+                const configuration = await http.getRemoteConfig(this.service, this.env, this.url, this.client);
                 this.callback && this.callback(false, configuration);
             } catch (e) {
                 this.callback && this.callback(e, null);

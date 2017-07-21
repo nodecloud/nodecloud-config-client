@@ -24,15 +24,17 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 class RemoteConfig {
     constructor(options) {
-        this.host = options.host;
-        this.port = options.port;
+        this.client = options.client;
+        this.url = options.url;
+
         this.env = options.env;
         this.service = options.service;
-        this.url = options.url;
+
         this.lastVersion = '';
         this.lastConfiguration = null;
 
-        this.watcher = new _ServerWatcher2.default(this.host, this.port, this.service, this.env, options.interval, this.url);
+        this.watcher = new _ServerWatcher2.default(this.service, this.env, options.interval, this.url, this.client);
+
         this.watcher.onUpdate((err, configuration) => {
             if (err) {
                 this.errorCallback && this.errorCallback(err);
@@ -67,7 +69,8 @@ class RemoteConfig {
 
         return _asyncToGenerator(function* () {
             try {
-                const configuration = yield httpClient.getRemoteConfig(_this.host, _this.port, _this.service, _this.env, _this.url);
+                const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
+
                 _this.handleConfiguration(configuration);
                 _this.watcher.startWatch();
             } catch (e) {
@@ -111,6 +114,10 @@ class RemoteConfig {
      * @return {*}
      */
     getFinalConfigurationSource(configuration) {
+        if (typeof configuration === 'string') {
+            throw new Error(`Please add header Content-Type:application/json to your http client.`);
+        }
+
         const sources = configuration.propertySources;
         if (sources.length > 0 && !this.lastConfiguration) {
             this.lastConfiguration = {};

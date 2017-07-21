@@ -20,8 +20,6 @@ var _uriParams2 = _interopRequireDefault(_uriParams);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const URL = '/:service/:env';
-
 /**
  * Send http request.
  *
@@ -46,21 +44,16 @@ function send(options = {}) {
     return (0, _requestPromise2.default)(options);
 }
 
-function getRemoteConfig(host, port, service, env, url) {
-    const request = {
-        url: buildUrl(host, port, url),
-        params: { service: service, env: env }
-    };
-
-    return send(request);
-}
-
-function buildUrl(host, port, url) {
-    let fullUrl = 'http://' + host;
-
-    if (port !== 80) {
-        fullUrl += ':' + port;
+function getRemoteConfig(service, env, url, client) {
+    if (client) {
+        return client.send({
+            url: url,
+            params: { service: service, env: env }
+        });
     }
 
-    return fullUrl + url || URL;
+    return send({
+        url: url,
+        params: { service: service, env: env }
+    });
 }

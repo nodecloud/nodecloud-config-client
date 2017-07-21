@@ -14,13 +14,12 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 class ServerWatcher {
 
-    constructor(host, port, service, env, interval, url) {
-        this.host = host;
-        this.port = port;
+    constructor(service, env, interval, url, client) {
         this.env = env;
         this.service = service;
         this.interval = interval || 60000;
         this.url = url;
+        this.client = client;
         this.end = false;
     }
 
@@ -33,7 +32,7 @@ class ServerWatcher {
 
         setTimeout(_asyncToGenerator(function* () {
             try {
-                const configuration = yield http.getRemoteConfig(_this.host, _this.port, _this.service, _this.env, _this.url);
+                const configuration = yield http.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
                 _this.callback && _this.callback(false, configuration);
             } catch (e) {
                 _this.callback && _this.callback(e, null);

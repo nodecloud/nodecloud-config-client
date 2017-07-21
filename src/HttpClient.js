@@ -2,8 +2,6 @@ import util from "lodash";
 import rp from "request-promise";
 import uriParams from "uri-params";
 
-const URL = '/:service/:env';
-
 /**
  * Send http request.
  *
@@ -28,21 +26,16 @@ export function send(options = {}) {
     return rp(options);
 }
 
-export function getRemoteConfig(host, port, service, env, url) {
-    const request = {
-        url: buildUrl(host, port, url),
-        params: {service: service, env: env}
-    };
-
-    return send(request);
-}
-
-function buildUrl(host, port, url) {
-    let fullUrl = 'http://' + host;
-
-    if (port !== 80) {
-        fullUrl += ':' + port;
+export function getRemoteConfig(service, env, url, client) {
+    if (client) {
+        return client.send({
+            url: url,
+            params: {service: service, env: env}
+        });
     }
 
-    return fullUrl + url || URL;
+    return send({
+        url: url,
+        params: {service: service, env: env}
+    });
 }

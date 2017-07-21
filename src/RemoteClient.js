@@ -4,15 +4,17 @@ import ServerWatcher from './ServerWatcher';
 
 export default class RemoteConfig {
     constructor(options) {
-        this.host = options.host;
-        this.port = options.port;
+        this.client = options.client;
+        this.url = options.url;
+
         this.env = options.env;
         this.service = options.service;
-        this.url = options.url;
+
         this.lastVersion = '';
         this.lastConfiguration = null;
 
-        this.watcher = new ServerWatcher(this.host, this.port, this.service, this.env, options.interval, this.url);
+        this.watcher = new ServerWatcher(this.service, this.env, options.interval, this.url, this.client);
+
         this.watcher.onUpdate((err, configuration) => {
             if (err) {
                 this.errorCallback && this.errorCallback(err);
@@ -44,7 +46,8 @@ export default class RemoteConfig {
 
     async loadConfig() {
         try {
-            const configuration = await httpClient.getRemoteConfig(this.host, this.port, this.service, this.env, this.url);
+            const configuration = await httpClient.getRemoteConfig(this.service, this.env, this.url, this.client);
+
             this.handleConfiguration(configuration);
             this.watcher.startWatch();
         } catch (e) {
@@ -83,6 +86,10 @@ export default class RemoteConfig {
      * @return {*}
      */
     getFinalConfigurationSource(configuration) {
+        if (typeof configuration === 'string') {
+            throw new Error(`Please add header Content-Type:application/json to your http client.`);
+        }
+
         const sources = configuration.propertySources;
         if (sources.length > 0 && !this.lastConfiguration) {
             this.lastConfiguration = {};
