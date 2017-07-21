@@ -47,8 +47,9 @@ client.on(ERROR_EVENT, err => {
 * @param options.remote.port The port of spring-cloud-config-server.
 * @param options.remote.service The name of the service.
 * @param options.remote.interval How long to refresh the configuration, default is one minute.(millisecond)
+* @param options.remote.url Custom the url of config server, default is '/:service/:env'
 * @param options.local.path The position of the local config file.
-* @param options.local.service The name of the service
+* @param options.local.service The name of the service.
 * @param options.local.ext The file type of the configuration, supports js or yml.
 
 ### client.on(eventName, callback)
