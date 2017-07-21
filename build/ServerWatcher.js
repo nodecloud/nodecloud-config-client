@@ -21,6 +21,7 @@ class ServerWatcher {
         this.url = url;
         this.client = client;
         this.end = false;
+        this.timerId = null;
     }
 
     onUpdate(callback) {
@@ -30,7 +31,11 @@ class ServerWatcher {
     startWatch() {
         var _this = this;
 
-        setTimeout(_asyncToGenerator(function* () {
+        if (this.timerId) {
+            clearTimeout(this.timerId);
+            this.timerId = null;
+        }
+        this.timerId = setTimeout(_asyncToGenerator(function* () {
             try {
                 const configuration = yield http.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
                 _this.callback && _this.callback(false, configuration);

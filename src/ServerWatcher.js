@@ -9,6 +9,7 @@ export default class ServerWatcher {
         this.url = url;
         this.client = client;
         this.end = false;
+        this.timerId = null;
     }
 
     onUpdate(callback) {
@@ -16,7 +17,11 @@ export default class ServerWatcher {
     }
 
     startWatch() {
-        setTimeout(async () => {
+        if (this.timerId) {
+            clearTimeout(this.timerId);
+            this.timerId = null;
+        }
+        this.timerId = setTimeout(async () => {
             try {
                 const configuration = await http.getRemoteConfig(this.service, this.env, this.url, this.client);
                 this.callback && this.callback(false, configuration);
