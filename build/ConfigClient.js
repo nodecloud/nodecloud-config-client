@@ -32,6 +32,7 @@ class ConfigClient extends _events2.default {
      * @param options.remote.port
      * @param options.remote.service
      * @param options.remote.interval
+     * @param options.remote.url
      * @param options.local.path
      * @param options.local.service
      * @param options.local.ext

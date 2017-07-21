@@ -46,21 +46,21 @@ function send(options = {}) {
     return (0, _requestPromise2.default)(options);
 }
 
-function getRemoteConfig(host, port, service, env) {
+function getRemoteConfig(host, port, service, env, url) {
     const request = {
-        url: buildUrl(host, port),
+        url: buildUrl(host, port, url),
         params: { service: service, env: env }
     };
 
     return send(request);
 }
 
-function buildUrl(host, port) {
+function buildUrl(host, port, url) {
     let fullUrl = 'http://' + host;
 
     if (port !== 80) {
         fullUrl += ':' + port;
     }
 
-    return fullUrl + URL;
+    return fullUrl + url || URL;
 }
