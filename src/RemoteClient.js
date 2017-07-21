@@ -91,9 +91,6 @@ export default class RemoteConfig {
         }
 
         const sources = configuration.propertySources;
-        if (sources.length > 0 && !this.lastConfiguration) {
-            this.lastConfiguration = {};
-        }
 
         let globalSource = null, envSource = null, source = null;
         const finalSource = {};
@@ -121,6 +118,13 @@ export default class RemoteConfig {
             return;
         }
 
+        let isSendEvent = true;
+
+        if (!this.lastConfiguration) {
+            this.lastConfiguration = {};
+            isSendEvent = false;
+        }
+
         for (const key in configuration.finalSource) {
             if (!configuration.finalSource.hasOwnProperty(key)) {
                 continue;
@@ -129,12 +133,14 @@ export default class RemoteConfig {
             if (this.lastConfiguration[key] !== configuration.finalSource[key]) {
                 this.lastConfiguration[key] = configuration.finalSource[key];
 
-                this.refreshCallback && this.refreshCallback(key, this.lastConfiguration[key]);
+                if (isSendEvent && this.refreshCallback) {
+                    this.refreshCallback(key, this.lastConfiguration[key]);
+                }
             }
         }
 
-        if (this.lastConfiguration) {
-            this.refreshAllCallback && this.refreshAllCallback(this.lastConfiguration);
+        if (isSendEvent && this.refreshAllCallback) {
+            this.refreshAllCallback(this.lastConfiguration);
         }
     }
 }

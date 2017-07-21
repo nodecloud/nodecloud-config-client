@@ -53,17 +53,16 @@ class ConfigClient extends _events2.default {
 
         if (options.remote) {
             this.remote = initialRemoteConfig(options.remote);
+            this.remoteClient = new _RemoteClient2.default(this.remote);
+            this.remoteClient.onRefresh((key, config) => this.emit(key, config));
+            this.remoteClient.onRefreshAll(config => this.emit(CONFIG_REFRESH_EVENT, config));
+            this.remoteClient.onError(err => this.emit(ERROR_EVENT, err));
         }
 
         if (options.local) {
             this.local = initialLocalConfig(options.local);
+            this.localClient = new _LocalClient2.default(this.local);
         }
-
-        this.remoteClient = new _RemoteClient2.default(this.remote);
-        this.remoteClient.onRefresh((key, config) => this.emit(key, config));
-        this.remoteClient.onRefreshAll(config => this.emit(CONFIG_REFRESH_EVENT, config));
-        this.remoteClient.onError(err => this.emit(ERROR_EVENT, err));
-        this.localClient = new _LocalClient2.default(this.local);
     }
 
     getConfig(path, defaultValue) {

@@ -34,17 +34,16 @@ export default class ConfigClient extends Event {
 
         if (options.remote) {
             this.remote = initialRemoteConfig(options.remote);
+            this.remoteClient = new RemoteClient(this.remote);
+            this.remoteClient.onRefresh((key, config) => this.emit(key, config));
+            this.remoteClient.onRefreshAll(config => this.emit(CONFIG_REFRESH_EVENT, config));
+            this.remoteClient.onError(err => this.emit(ERROR_EVENT, err));
         }
 
         if (options.local) {
             this.local = initialLocalConfig(options.local);
+            this.localClient = new LocalClient(this.local);
         }
-
-        this.remoteClient = new RemoteClient(this.remote);
-        this.remoteClient.onRefresh((key, config) => this.emit(key, config));
-        this.remoteClient.onRefreshAll(config => this.emit(CONFIG_REFRESH_EVENT, config));
-        this.remoteClient.onError(err => this.emit(ERROR_EVENT, err));
-        this.localClient = new LocalClient(this.local);
     }
 
     async getConfig(path, defaultValue) {
