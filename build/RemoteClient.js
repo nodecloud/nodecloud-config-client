@@ -64,28 +64,25 @@ class RemoteConfig {
         this.watcher.endWatch();
     }
 
-    loadConfig() {
+    loadConfig(count = 0) {
         var _this = this;
 
         return _asyncToGenerator(function* () {
-            let i = 0;
+            try {
+                const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
 
-            while (true) {
-                try {
-                    const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
-
-                    _this.handleConfiguration(configuration);
-                    _this.watcher.startWatch();
-                    return configuration;
-                } catch (e) {
-                    if (i === 5) {
-                        _this.watcher.endWatch();
-                        throw e;
-                    }
+                _this.handleConfiguration(configuration);
+                _this.watcher.startWatch();
+                return configuration;
+            } catch (e) {
+                if (count >= 5) {
+                    _this.watcher.endWatch();
+                    throw e;
                 }
-
-                i++;
             }
+
+            yield sleep(1000);
+            return _this.loadConfig(++count);
         })();
     }
 
@@ -183,6 +180,14 @@ class RemoteConfig {
 }
 
 exports.default = RemoteConfig;
+function sleep(time) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve();
+        }, time);
+    });
+}
+
 function transformToObject(configuration) {
     const config = {};
     for (const key in configuration) {
