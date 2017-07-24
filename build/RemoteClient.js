@@ -32,6 +32,7 @@ class RemoteConfig {
 
         this.lastVersion = '';
         this.lastConfiguration = null;
+        this.isLoading = false;
 
         this.watcher = new _ServerWatcher2.default(this.service, this.env, options.interval, this.url, this.client);
 
@@ -69,14 +70,17 @@ class RemoteConfig {
 
         return _asyncToGenerator(function* () {
             try {
+                _this.isLoading = true;
                 const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
 
                 _this.handleConfiguration(configuration);
                 _this.watcher.startWatch();
+                _this.isLoading = false;
                 return configuration;
             } catch (e) {
                 if (count >= 5) {
                     _this.watcher.endWatch();
+                    _this.isLoading = false;
                     throw e;
                 }
             }
@@ -90,6 +94,11 @@ class RemoteConfig {
         var _this2 = this;
 
         return _asyncToGenerator(function* () {
+            if (!_this2.lastConfiguration && _this2.isLoading) {
+                yield sleep(300);
+                return _this2.getConfig(path, defaultValue);
+            }
+
             if (!_this2.lastConfiguration) {
                 yield _this2.loadConfig();
             }

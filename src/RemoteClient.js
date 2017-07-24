@@ -12,6 +12,7 @@ export default class RemoteConfig {
 
         this.lastVersion = '';
         this.lastConfiguration = null;
+        this.isLoading = false;
 
         this.watcher = new ServerWatcher(this.service, this.env, options.interval, this.url, this.client);
 
@@ -46,14 +47,17 @@ export default class RemoteConfig {
 
     async loadConfig(count = 0) {
         try {
+            this.isLoading = true;
             const configuration = await httpClient.getRemoteConfig(this.service, this.env, this.url, this.client);
 
             this.handleConfiguration(configuration);
             this.watcher.startWatch();
+            this.isLoading = false;
             return configuration;
         } catch (e) {
             if (count >= 5) {
                 this.watcher.endWatch();
+                this.isLoading = false;
                 throw e;
             }
         }
@@ -63,6 +67,11 @@ export default class RemoteConfig {
     }
 
     async getConfig(path, defaultValue) {
+        if (!this.lastConfiguration && this.isLoading) {
+            await sleep(300);
+            return this.getConfig(path, defaultValue);
+        }
+
         if (!this.lastConfiguration) {
             await this.loadConfig();
         }
