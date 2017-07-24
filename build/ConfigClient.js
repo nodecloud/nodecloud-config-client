@@ -103,7 +103,7 @@ function initialRemoteConfig(remote) {
         remote.interval = 60000;
     }
 
-    remote.env = process.env.NODE_ENV;
+    remote.env = process.env.NODE_ENV || 'development';
     return remote;
 }
 
@@ -116,6 +116,6 @@ function initialLocalConfig(local) {
         local.type = 'js';
     }
 
-    local.env = process.env.NODE_ENV;
+    local.env = process.env.NODE_ENV || 'development';
     return local;
 }
