@@ -68,14 +68,23 @@ class RemoteConfig {
         var _this = this;
 
         return _asyncToGenerator(function* () {
-            try {
-                const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
+            let i = 0;
 
-                _this.handleConfiguration(configuration);
-                _this.watcher.startWatch();
-            } catch (e) {
-                _this.watcher.endWatch();
-                throw e;
+            while (true) {
+                try {
+                    const configuration = yield httpClient.getRemoteConfig(_this.service, _this.env, _this.url, _this.client);
+
+                    _this.handleConfiguration(configuration);
+                    _this.watcher.startWatch();
+                    return configuration;
+                } catch (e) {
+                    if (i === 5) {
+                        _this.watcher.endWatch();
+                        throw e;
+                    }
+                }
+
+                i++;
             }
         })();
     }

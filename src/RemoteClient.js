@@ -45,14 +45,23 @@ export default class RemoteConfig {
     }
 
     async loadConfig() {
-        try {
-            const configuration = await httpClient.getRemoteConfig(this.service, this.env, this.url, this.client);
+        let i = 0;
 
-            this.handleConfiguration(configuration);
-            this.watcher.startWatch();
-        } catch (e) {
-            this.watcher.endWatch();
-            throw e;
+        while (true) {
+            try {
+                const configuration = await httpClient.getRemoteConfig(this.service, this.env, this.url, this.client);
+
+                this.handleConfiguration(configuration);
+                this.watcher.startWatch();
+                return configuration;
+            } catch (e) {
+                if (i === 5) {
+                    this.watcher.endWatch();
+                    throw e;
+                }
+            }
+
+            i++;
         }
     }
 
