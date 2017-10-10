@@ -39,6 +39,7 @@ class RemoteConfig {
         this.watcher.onUpdate((err, configuration) => {
             if (err) {
                 this.errorCallback && this.errorCallback(err);
+                return;
             }
 
             this.handleConfiguration(configuration);
@@ -85,7 +86,7 @@ class RemoteConfig {
                 }
             }
 
-            yield sleep(1000);
+            yield sleep(3000);
             return _this.loadConfig(++count);
         })();
     }
@@ -95,7 +96,7 @@ class RemoteConfig {
 
         return _asyncToGenerator(function* () {
             if (!_this2.lastConfiguration && _this2.isLoading) {
-                yield sleep(300);
+                yield sleep(1000);
                 return _this2.getConfig(path, defaultValue);
             }
 
@@ -114,7 +115,7 @@ class RemoteConfig {
     }
 
     handleConfiguration(configuration) {
-        if (this.lastVersion !== configuration.version) {
+        if (configuration && this.lastVersion !== configuration.version) {
             this.lastVersion = configuration.version;
             const finalConfiguration = this.getFinalConfigurationSource(configuration);
             this.compareAndSet(finalConfiguration);
