@@ -1,6 +1,6 @@
 {
   "name": "nodecloud-config-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A component of node cloud framework.",
   "main": "build/ConfigClient.js",
   "scripts": {

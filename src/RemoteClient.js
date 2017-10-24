@@ -9,6 +9,7 @@ export default class RemoteConfig {
 
         this.env = options.env;
         this.service = options.service;
+        this.watch = options.watch;
 
         this.lastVersion = '';
         this.lastConfiguration = null;
@@ -52,7 +53,11 @@ export default class RemoteConfig {
             const configuration = await httpClient.getRemoteConfig(this.service, this.env, this.url, this.client);
 
             this.handleConfiguration(configuration);
-            this.watcher.startWatch();
+
+            if (this.watch) {
+                this.watcher.startWatch();
+            }
+
             this.isLoading = false;
             return configuration;
         } catch (e) {

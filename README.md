@@ -15,7 +15,8 @@ const client = new Client({
     remote: {
         url: 'http://localhost:8888/:service/:env',
         service: 'service',
-        interval: 60000
+        interval: 60000,
+        watch: false
     },
     local: {
         path: path.resolve(__dirname),
@@ -46,6 +47,7 @@ client.on(ERROR_EVENT, err => {
 * @param options.remote.client Custom http client. It's an object implement send method with promisify.
 * @param options.remote.service The name of the service.
 * @param options.remote.interval How long to refresh the configuration, default is one minute.(millisecond)
+* @param options.remote.watch
 
 * @param options.local.path The position of the local config file.
 * @param options.local.service The name of the service.

@@ -13,6 +13,7 @@ export default class ConfigClient extends Event {
      * @param options.remote.interval
      * @param options.remote.url
      * @param options.remote.client
+     * @param options.remote.watch
      * @param options.local.path
      * @param options.local.service
      * @param options.local.ext
